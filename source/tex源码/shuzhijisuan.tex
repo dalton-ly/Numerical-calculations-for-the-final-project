@@ -1,0 +1,803 @@
+\documentclass[twocolumn]{ctexart}
+\usepackage{amsmath}
+\usepackage{listings}
+%\usepackage[toc]{multitoc}
+\usepackage{caption}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage{graphicx}
+\usepackage{cuted}
+\usepackage{array}
+\usepackage{authblk}
+\usepackage{fontspec}
+\usepackage{geometry}
+\usepackage{multicol}
+\usepackage{float}
+\usepackage{svg}
+\usepackage{AMSFonts}
+\usepackage{stfloats}
+%\setCJKmainfont[BoldFont=KaiTi]{SimSun}
+%\newcommand{\enabstractname}{Abstract}
+%\newenvironment{enabstract}{%
+%\quotation
+%	\par\small
+%	\mbox{}\hfill{\bfseries \enabstractname}\hfill\mbox{}\par
+%	\vskip 2.5ex}{\par\vskip 2.5ex} 
+%
+%\title{\Huge\CJKfamily{zhkai} 数值计算期中大作业报告}	
+%\author{李杨 20309131 电子信息科学与技术}
+\setlength{\parskip}{0.5em}
+\title{数值计算期末大作业报告}
+\author{\textup{李杨}}
+\geometry{a4paper,scale=0.8}
+\begin{document}
+\begin{titlepage}
+	\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+	\centering\includegraphics[scale=1]{sysu.jpg}\\[0.8cm] 
+	\center 
+	\quad\\[1.5cm]
+	\textsl{\Large Sun yat-sen University }\\[0.5cm] 
+	\textsl{\large School of Electronics and Information Technology}\\[0.5cm] 
+	\makeatletter
+	\HRule \\[0.4cm]
+	{ \huge \bfseries \@title}\\[0.4cm] 
+	\HRule \\[1.5cm]
+	\begin{minipage}{0.4\textwidth}
+		\begin{flushleft} \large
+%			\emph{Author:}\\
+%			\@author 
+		\end{flushleft}
+	\end{minipage}
+	~
+	\begin{minipage}{0.4\textwidth}
+		\begin{flushright} \large
+%			\emph{Supervisor:} \\
+%			\textup{Prof Wu}
+		\end{flushright}
+	\end{minipage}\\[3cm]
+	\makeatother
+%	{\large An Assignment submitted for the UCAS:}\\[0.5cm]
+	{\large \emph{李杨 20309131}}\\[0.5cm]
+	{\large \today}\\[2cm] 
+	\vfill 
+\end{titlepage}
+%\maketitle
+%\newpage
+\tableofcontents
+%\clearpage
+%\newpage
+\listoffigures
+\newpage
+%颜色定义 用于代码高亮
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\lstset{ 
+backgroundcolor=\color{white},   % choose the background color
+basicstyle=\footnotesize\ttfamily,        % size of fonts used for the code
+columns=fullflexible,
+breaklines=true,                 % automatic line breaking only at whitespace
+captionpos=b,                    % sets the caption-position to bottom
+tabsize=4,
+commentstyle=\color{mygreen},    % comment style
+escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+keywordstyle=\color{blue},       % keyword style
+stringstyle=\color{mymauve}\ttfamily,     % string literal style
+frame=shadowbox,
+rulesepcolor=\color{red!20!green!20!blue!20},
+% identifierstyle=\color{red},
+numbers=left, 
+numberstyle=\tiny,
+% escapeinside=' ',
+xleftmargin=2em,
+xrightmargin=2em, 
+aboveskip=1em
+}
+\section{文献一}
+\par 在期中大作业的基础上我们有了准备了复数类、复数矩阵类等相应的基础准备，并在期中报告中给出，此报告不再列出原有的基础而只列出新的改变以及添加。
+\par 在MIMO系统中用户和基站之间的通信可以表示为：\[\overline{\mathbf{y}}=\overline{\mathbf{H}} \overline{\mathbf{s}}+\overline{\mathbf{n}}\]
+其中H为信道矩阵，s为调制后的发送信号，n为高斯白噪声。若令
+\[\mathbf{y}=\left[\begin{array}{l}
+\mathfrak{R}\{\overline{\mathbf{y}}\} \\
+\mathfrak{J}\{\overline{\mathbf{y}}\}
+\end{array}\right] \in \mathbb{R}^{N \times 1} \quad \mathbf{s}=\left[\begin{array}{l}
+\mathfrak{R}\{\overline{\mathbf{s}}\} \\
+\mathfrak{J}\{\overline{\mathbf{s}}\}
+\end{array}\right] \in \mathbb{R}^{K \times 1}\]
+\[\mathbf{n}= \left[\begin{array}{l}
+\mathfrak{R}\{\overline{\mathbf{n}}\} \\
+\mathfrak{J}\{\overline{\mathbf{n}}\}
+\end{array}\right] \in \mathbb{R}^{N \times 1} \]\[\text{及} \mathbf{H}=\left[\begin{array}{cc}
+\mathfrak{R}\{\overline{\mathbf{H}}\} & -\mathfrak{J}\{\overline{\mathbf{H}}\} \\
+\mathfrak{J}\{\overline{\mathbf{H}}\} & \mathfrak{R}\{\overline{\mathbf{H}}\}
+\end{array}\right] \in \mathbb{R}^{N \times K}\]
+原式可化为：\[\mathbf{y}=\mathbf{H} \mathbf{s}+\mathbf{n}\]
+而待求发送信号为：
+\begin{equation}
+\hat{\mathbf{s}}=\left(\mathbf{H}^{T} \mathbf{H}+\sigma_{n}^{2} \mathbf{I}_{K}\right)^{-1} \mathbf{H}^{T} \mathbf{y}=\mathbf{A}^{-1} \mathbf{b} \label{fangcheng}
+\end{equation}
+
+通过对该式的进一步变化可知要求发送信号即寻找函数\[f(\mathbf{s})=\frac{1}{2} \mathbf{s}^{T} \mathbf{A s}-\mathbf{b}^{T} \mathbf{s}\]
+的最小值。即寻找$\mathbf{\hat{s}}$使$ f(\mathbf{\hat{s}}) $最小。
+\par 在此基础上即可通过最优化方法来还原发送信号。
+\subsection{BFGS算法}
+\par BFGS算法的迭代格式如下所示：
+\[\mathbf{s}_{k+1}=\mathbf{s}_{k}+\alpha_{k} \mathbf{d}_{k}\]
+其中$ \alpha_k $为步长，$ \mathbf{d}_k $为搜索方向。中$ \alpha_k $可由以下式子得到：
+\[\begin{aligned}
+\alpha_{k} &=\underset{\alpha \geq 0}{\arg \min } f\left(\mathbf{s}_{k}+\alpha \mathbf{d}_{k}\right) \\
+&=-\frac{\mathbf{g}_{k}^{T} \mathbf{d}_{k}}{\mathbf{d}_{k}^{T} \mathbf{A d}_{k}},
+\end{aligned}\]其中$ \mathbf{g}_k $为$ f(\mathbf{s}) $的梯度。
+ 在拟牛顿法中第k次迭代的搜索方向$ \mathbf{d}_k $是由
+\[\mathbf{d}_{k}=-\mathbf{B}_{k} \mathbf{g}_{k}\]给出。
+\par 对于$ \mathbf{B}_k $,其迭代过程如下：
+\[
+\begin{aligned}
+\mathbf{B}_{k+1} &=\mathbf{B}_{k}-\frac{\mathbf{p}_{k} \mathbf{q}_{k}^{T} \mathbf{B}_{k}+\mathbf{B}_{k} \mathbf{q}_{k} \mathbf{p}_{k}^{T}}{\mathbf{p}_{k}^{T} \mathbf{q}_{k}}+\left(1+\frac{\mathbf{q}_{k}^{T} \mathbf{B}_{k} \mathbf{q}_{k}}{\mathbf{p}_{k}^{T} \mathbf{q}_{k}}\right) \frac{\mathbf{p}_{k} \mathbf{p}_{k}^{T}}{\mathbf{p}_{k}^{T} \mathbf{q}_{k}} \\
+&=\left(\mathbf{I}-\frac{\mathbf{p}_{k} \mathbf{q}_{k}^{T}}{\mathbf{p}_{k}^{T} \mathbf{q}_{k}}\right) \mathbf{B}_{k}\left(\mathbf{I}-\frac{\mathbf{q}_{k} \mathbf{p}_{k}^{T}}{\mathbf{p}_{k}^{T} \mathbf{q}_{k}}\right)+\frac{\mathbf{p}_{k} \mathbf{p}_{k}^{T}}{\mathbf{p}_{k}^{T} \mathbf{q}_{k}} \\
+&=\mathbf{V}_{k}^{T} \mathbf{B}_{k} \mathbf{V}_{k}+\rho_{k} \mathbf{p}_{k} \mathbf{p}_{k}^{T},
+\end{aligned}
+\]
+其中$\rho_{k}=1 / \mathbf{p}_{k}^{T} \mathbf{q}_{k}$ 且  $\mathbf{V}_{k}=\mathbf{I}-\rho_{k} \mathbf{q}_{k} \mathbf{p}_{k}^{T}$
+\par 有了算法原理便能进行编程实现。程序如下：
+\begin{lstlisting}
+Matrix BFGS(complex_matrix H_hat,complex_matrix y_hat,double s)//BFGS算法 s为方差
+{
+	int N = 2 * y_hat.rows_num;
+	int K = 2 * H_hat.cols_num;
+	//complex_matrix temp_y(2 * y.rows_num, 1);
+	Matrix R_y = y_hat.realmatrix();//实部矩阵
+	Matrix I_y = y_hat.imagmatrix();//虚部矩阵
+
+	Matrix R_H = H_hat.realmatrix();
+	Matrix I_H = H_hat.imagmatrix();
+
+	Matrix y=R_y.combine_rows(R_y,I_y);
+
+	Matrix H = R_H.combine_rows(R_H, I_H);
+	Matrix temp_imagpart = Matrix(H_hat.rows_num, H_hat.cols_num) - I_H;//负的H的虚部矩阵
+	Matrix temp = temp_imagpart.combine_rows(temp_imagpart, R_H);
+	H= H.combine_cols(H, temp);//最终得到H
+
+	Matrix A = Matrix::T(H) * H + Matrix::eye(K) * s;
+	Matrix b = Matrix::T(H) * y;
+
+	Matrix s0 = generate_signal(K).realmatrix();//产生一个随机的s0
+	Matrix B = Matrix::eye(s0.rows_num);//初始时可以为任意对称正定矩阵
+	Matrix g=get_negetive_gradient(*f_s,s0,A,b);//notice that g is negative 
+	
+	Matrix d;
+	d = B * g;
+
+	Matrix p;
+	Matrix q;
+	Matrix temps;
+	Matrix tempg;
+	
+	double alpha = (Matrix::T(g) * d).p[0][0] / ((Matrix::T(d) * A * d)).p[0][0];
+	//因为求得的g为负梯度，因此不需要加负号
+	for (size_t i = 0; i < 5; i++)
+	{
+		temps = s0;//save s0
+
+		s0 = s0 + d*alpha;//迭代
+
+		tempg = g;
+		g = get_negetive_gradient(*f_s, s0, A, b);//update g, notice that g is negative
+
+		//更新B
+		p = s0 - temps;
+		q = tempg-g;//because g is negative
+
+		//q = Matrix(q.rows_num, q.cols_num) - q;//because g is negative. make it positive
+		double ro = 1.0 / ((Matrix::T(p) * q).p[0][0]);
+		Matrix V = Matrix::eye(s0.rows_num) - q * Matrix::T(p) * ro;
+		B = Matrix::T(V) * B * V + p * Matrix::T(p) * ro;
+
+		d = B * g;//更新dk
+
+		alpha= (Matrix::T(g) * d).p[0][0] / ((Matrix::T(d) * A * d)).p[0][0];//更新α
+			
+	}
+	return s0;
+}
+\end{lstlisting}
+\subsection{LBFGS算法}
+\par 由于随着迭代的进行，B矩阵变得稠密。因此BFGS方法的存储和计算代价将会变得很大，这对于大规模MIMO系统来说是不现实的。在此条件下，LBFGS算法被提出，其并不显式地保存B矩阵而通过储存一定数目的p矩阵和q矩阵来得到B矩阵。
+\par 在LBFGS算法中我们通过一个双向循环来得到每次迭代过程中的B矩阵，算法循环的算法如下：
+\[\begin{array}{l}
+\hline \text { Algorithm } \mathbf{1} \text { L-BFGS two-loop recursion } \\
+\hline \text { Input: a certain number } m \text { of }\left\{\mathbf{p}_{i}, \mathbf{q}_{i}\right\}, \text { and }\\ \rho_{i}=1 /\left(\mathbf{p}_{i}^{T} \mathbf{q}_{i}\right) \text { for } \\
+\text { all } i \in k-m+1, \cdots, k, \text { the current gradient } \mathbf{g}_{k+1} ; \\
+\text { Output: new search direction } \mathbf{d}_{k+1}=-\mathbf{B}_{k+1} \mathbf{g}_{k+1} ; \\
+\text { 1: } \mathbf{r}=\mathbf{g}_{k+1} ; \\
+\text { 2: } \text { for } i=k \text { to } k-m+1 \mathbf{d o} \\
+\text { 3: } \quad \alpha_{i}=\rho_{i} \mathbf{p}_{i}^{T} \mathbf{r} ; \\
+\text { 4: } \quad \mathbf{r}=\mathbf{r}-\alpha_{i} \mathbf{q}_{i} ; \\
+\text { 5: } \text { end for } \\
+\text { 6: } \mathbf{r}=\mathbf{B}_{k}^{0} \mathbf{r} ; \\
+\text { 7: } \text { for } i=k-m+1 \text { to } k \mathbf{d o} \\
+\text { 8: } \quad \beta=\rho_{i} \mathbf{q}_{i}^{T} \mathbf{r} ; \\
+\text { 9: } \quad \mathbf{r}=\mathbf{r}+\mathbf{p}_{i}\left(\alpha_{i}-\beta\right) ; \\
+\text { 10: } \text { end } \text { for } \\
+\text { Return: } \mathbf{d}_{k+1}=-\mathbf{r} . \\
+\hline
+\end{array}\]
+而LBFGS算法的主算法如下：
+\[\begin{array}{l}
+\hline \text { Algorithm } 2 \text { L-BFGS method for MMSE detection } \\
+\hline \text { Input: } \mathbf{H}, \mathbf{y}, \sigma_{n}^{2} ; \\
+\text { Output: } \hat{\mathbf{s}} ; \\
+\text { Initialization: } \\
+\text { Initialize starting vector } \mathbf{s}_{0}, \\ 
+\text { inverse Hessian approximation } \mathbf{B}_{0}, \\
+\text { accuracy threshold } \epsilon, \text { iteration number } L,\\ \text { correction number } \\
+m ; \text { Compute } \mathbf{A}=\mathbf{H}^{T} \mathbf{H}+\sigma_{n}^{2} \mathbf{I}_{K}, \mathbf{b}=\mathbf{H}^{T} \mathbf{y}, \mathbf{g}_{0}=\mathbf{A s}_{0}-\mathbf{b}, \\
+\mathbf{d}_{0}=-\mathbf{B}_{0} \mathbf{g}_{0} ; \text { Set } k=0 ; \\
+\text { Step 1: If }\left\|\mathbf{g}_{k}\right\| \leq \epsilon \text { or } k=L, \text { stop and return } \hat{\mathbf{s}}=\mathbf{s}_{k} ; \\
+\text { Step 2: Find the step length } \alpha_{k} \text { with the formula (10); } \\
+\text { Step 3: Compute the new iteration } \mathbf{s}_{k+1}=\mathbf{s}_{k}+\alpha_{k} \mathbf{d}_{k} ; \\
+\text { Step 4: Compute the new gradient } \mathbf{g}_{k+1}=\mathbf{A s}_{k+1}-\mathbf{b} ; \\
+\text { Step 5: Update } \mathbf{p}_{k}=\mathbf{s}_{k+1}-\mathbf{s}_{k} \text { and } \mathbf{q}_{k}=\mathbf{g}_{k+1}-\mathbf{g}_{k} ; \\
+\text { Step 6: If } k>m, \text { discard vector pair } \mathbf{p}_{k-m}, \mathbf{q}_{k-m} \\ \text  { from storage; } \\
+\text { Step 7: Use Algorithm } 1 \\ \text { to compute the new search direction } \\
+\mathbf{d}_{k+1}=-\mathbf{B}_{k+1} \mathbf{g}_{k+1} ; \\
+\text { Step 8: } k:=k+1 \text { and go to Step } \mathbf{1 .} \\
+\hline
+\end{array}\]
+\quad 针对算法编写程序如下：\\
+\quad 主函数部分：
+\begin{lstlisting}
+Matrix LBFGS(complex_matrix H_hat,complex_matrix y_hat,double s)
+{
+	deque<Matrix> deque_of_p;
+	deque<Matrix> deque_of_q;
+	deque<double> deque_of_ro;
+	int m = 1;
+	double eps = 1e-6;
+	int N = 2 * y_hat.rows_num;
+	int K = 2 * H_hat.cols_num;
+	//complex_matrix temp_y(2 * y.rows_num, 1);
+	Matrix R_y = y_hat.realmatrix();//实部矩阵
+	Matrix I_y = y_hat.imagmatrix();//虚部矩阵
+
+	Matrix R_H = H_hat.realmatrix();
+	Matrix I_H = H_hat.imagmatrix();
+
+	Matrix y = R_y.combine_rows(R_y, I_y);
+
+	Matrix H = R_H.combine_rows(R_H, I_H);
+	Matrix temp_imagpart = Matrix(H_hat.rows_num, H_hat.cols_num) - I_H;//负的H的虚部矩阵
+	Matrix temp = temp_imagpart.combine_rows(temp_imagpart, R_H);
+	H = H.combine_cols(H, temp);//最终得到H
+	//H.Show();
+	//y.Show();
+
+
+	Matrix A = Matrix::T(H) * H + Matrix::eye(K) * s;
+	Matrix b = Matrix::T(H) * y;
+
+	
+
+	Matrix s0 = generate_signal(K).realmatrix();//产生一个随机的s0
+	Matrix g0 = A * s0 - b;
+	Matrix B0 = Matrix::eye(s0.rows_num);//初始时可以为任意对称正定矩阵
+	Matrix B;
+	Matrix d0 = B0 * g0;
+	d0 = Matrix(d0.rows_num, d0.cols_num) - d0;
+	Matrix temps;
+	Matrix tempg;
+	Matrix p;
+	Matrix q;
+	for (int k = 0; k < 100; k++)
+	{
+		if (g0.norm2(0)<=eps)
+		{ 
+			break;
+		}
+		else
+		{
+			double alpha = -(Matrix::T(g0) * d0).p[0][0] / ((Matrix::T(d0) * A * d0)).p[0][0];
+
+			temps = s0;//save s0
+
+			s0 = s0 + d0 * alpha;//迭代
+
+			tempg = g0;
+			g0 = A * s0 - b;
+
+			//更新B
+			p = s0 - temps;
+			q = g0-tempg;
+			double gamma = (Matrix::T(q)*p).p[0][0] / (Matrix::T(q)*q).p[0][0];
+			B = B0 * gamma;
+			//使用双端队列来保存pi和qi
+			deque_of_p.push_back(p);
+			deque_of_q.push_back(q);
+			deque_of_ro.push_back(1.0 / (Matrix::T(p) * q).p[0][0]);
+			if (k > m)
+			{
+				//k>m删除前端元素
+				deque_of_p.pop_front();
+				deque_of_q.pop_front();
+				deque_of_ro.pop_front();
+			}
+			 d0 = LBFGS_two_loop(m,k,deque_of_p,deque_of_q
+			,deque_of_ro,g0,B);
+		}
+	}
+	return s0;
+}
+\end{lstlisting}
+双向循环部分：
+\begin{lstlisting}
+Matrix LBFGS_two_loop(int m, int k, deque<Matrix> deque_of_p
+	, deque<Matrix> deque_of_q, deque<double> deque_of_ro, Matrix gk_1, Matrix Bk)
+{
+	int delta;
+	int L;
+	if (k <= m)
+	{
+		 //delta = 0;
+		 L = k;
+	}
+	else
+	{
+		//delta = k - m;
+		L = m;
+	}
+	double* alpha = new double[L];
+	Matrix r = gk_1;
+	//int j;
+	for (int i = L-1; i >=0; i--)
+	{
+		//j = i + delta;
+		alpha[i] = (Matrix::T(deque_of_p[i]) * r * deque_of_ro[i]).p[0][0];
+		r = r - deque_of_q[i]* alpha[i];
+	} 
+	r = Bk * r;
+	double beta;
+	for (int i = 0; i < L-1; i++)
+	{
+		beta = (Matrix::T( deque_of_q[i]) * r * deque_of_ro[i]).p[0][0];
+		r = r + deque_of_p[i] * (alpha[i] - beta);
+	}
+	return Matrix(r.rows_num, r.cols_num) - r;
+}
+\end{lstlisting}
+算法实现过程中通过三个deque双向队列实现p和q向量的保存与删除，通过deque队列能够较为方便地保存一定数目的pq向量并能够实现容器内任意元素的访问。
+
+在双向循环函数中，当k<m时队列会一直压入pq向量，而当k>m时则会弹出最前端的元素以便减少算法内存使用量。
+\subsection{LBFGS的改进}
+\par 为了充分利用大规模MIMO系统的特性，进一步降低迭代成本，我们可以采用基于L-BFGS方法的MMSE检测的三种改进策略，包括减少校正向量对的个数、改进初始化矩阵和选择合适的步长。在本次作业中，我们改进了pq向量对的个数即搜索方向以及采用了改进后的初始矩阵。
+\subsubsection{搜索方向改进}
+\par 由于m越小LBFGS算法的计算效率越高，考虑pq向量对个数为1时的情形，通过推导我们可以得到\[\mathbf{d}_{k}^{L B F G S}=\mathbf{d}_{k}^{B F G S}\]这意味着当$ m=1\text{以及}\mathbf{B}_0^k =\mathbf{B}_0$时双向循环被忽略而我们可以减少内存的消耗。
+\par 基于上述思想将LBFGS算法中$ m $的值改为1即可得到改进后的程序。此处不再列出。
+\subsubsection{B矩阵初始化改进}
+\par 由于初始矩阵B的选择会影响L-BFGS算法的行为，所以我们可以通过研究B矩阵对算法的影响来改进算法。
+\par 一个简单的初始化B的方法是令$ \mathbf{B_k^0=I} $，但是如此选择的收敛速度往往较慢.由于双循环递归使得B0与其他算法独立，因此可以在每次迭代中任意选择B0，所以，一种常见的有效的替代LBFGS方法是设置
+$ \mathbf{B}_k^0=\gamma_k\mathbf{I}$，其中$ \gamma_k $:\[\gamma_{k}=\frac{\mathbf{q}_{k}^{T} \mathbf{p}_{k}}{\mathbf{q}_{k}^{T} \mathbf{q}_{k}}\]
+\quad 在此想法基础上，编写程序只需要在LBFGS算法中添加语句：
+\begin{lstlisting}
+double gamma = (Matrix::T(q)*p).p[0][0] / (Matrix::T(q)*q).p[0][0];
+			B = B0 * gamma;
+\end{lstlisting}
+语句即可。
+
+\subsection{算法比较}
+\par 为了测试不同条件下各个算法的误码率，编写误码率测试程序。误码率测试程序的基本单元如下：
+\begin{lstlisting}
+out.open("BER_of_BFGS.txt");
+	int SNR_max = 13;
+	double BER_of_BFGS;
+	complex_matrix temp_H = generate_H(nR, nT);
+	//outML << "Eb_N0" << "	" << "BER" << endl;
+	out.open("BER_of_BFGS.txt");
+	for (int k = 1; k < SNR_max; k++)
+	{
+		srand((unsigned)time(NULL));
+		 BER_of_BFGS = 0;
+		for (int i = 0; i < times; i++)
+		{
+			complex_matrix c = generate_signal(nT);//发射信号
+			c=quantization(c);
+			complex_matrix miu = generate_noise(nR);
+			miu =(miu / sqrt(k))*nT;
+			complex_matrix temp_x = temp_H * c + miu;
+			complex_matrix result_of_BFGS = Matrix_to_complex(BFGS(temp_H, temp_x,0.5*double(k)));
+			//complex_matrix result_of_BFGS =SPCG(temp_H, temp_x, 0.5 * double(k));
+			BER_of_BFGS += BitsErrorRate(c, result_of_BFGS);
+		}
+		cout << BER_of_BFGS << endl;
+		out << fixed << setprecision(10) << double(k) << "			" << BER_of_BFGS / times << "  " << endl;;
+	}
+	out.close();
+\end{lstlisting}
+测试不同算法和在不同条件下的误码率是改变输出的文件以及对应的算法函数名称即可。
+\par 分别测试在不同情况下不同算法的表现，得到的结果绘制对应的曲线如图1所示：
+\begin{figure*}[htbp]
+
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\includegraphics[scale=0.6]{fig1.eps}
+\caption{不同的$ m$下不同BFGS算法误码率表现}
+\end{minipage}
+\centering
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\includegraphics[scale=0.6]{fig2.eps}
+\caption{不同的初始矩阵$ \mathbf{B}_0 $LBFGS算法误码率表现}
+\end{minipage}
+\end{figure*}
+\paragraph{结果分析} 从误码率结果可以看出以下性质
+\begin{itemize}
+\item 误码率随着信噪比SNR的增大而减小
+\item 误码率随迭代次数增大而减小
+\item 误码率随pq向量对数m取值增大而减小
+\end{itemize}
+\section{文献二}
+\par 从文献一的讨论中我们知道还原信号即为函数：
+\[f(\mathbf{s})=\frac{1}{2} \mathbf{s}^{T} \mathbf{A s}-\mathbf{b}^{T} \mathbf{s}\]取最小值时的s。在复数情况下该方程可化为：
+\[f(\mathbf{s})=\frac{1}{2} \mathbf{s}^{H} \mathbf{A} \mathbf{s}-\tilde{\mathbf{y}} \mathbf{s}+\frac{1}{2} \mathbf{y}^{H} \mathbf{y}\]
+\subsection{传统梯度下降法}
+\par 寻找上述函数的最小值可使用传统的共轭梯度法，其基本的迭代格式如下所示：
+\[\begin{aligned}
+\hat{\mathbf{s}}^{(k+1)} &=\hat{\mathbf{s}}^{(k)}+\frac{\left(\tilde{\mathbf{y}}^{(k)} \cdot \tilde{\mathbf{y}}^{(k)}\right)}{\left(\mathbf{A} \tilde{\mathbf{y}}^{(k)} \cdot \tilde{\mathbf{y}}^{(k)}\right)} \tilde{\mathbf{y}}^{(k)} \\
+\tilde{\mathbf{y}}^{(k+1)} &=\tilde{\mathbf{y}}^{(k)}-\frac{\left(\tilde{\mathbf{y}}^{(k)} \cdot \tilde{\mathbf{y}}^{(k)}\right)}{\left(\mathbf{A} \tilde{\mathbf{y}}^{(k)} \cdot \tilde{\mathbf{y}}^{(k)}\right)} \mathbf{A} \tilde{\mathbf{y}}^{(k)}
+\end{aligned}\]
+在算法基础上编写程序如下：
+\begin{lstlisting}
+complex_matrix SD(complex_matrix H_hat,complex_matrix y_hat,double s,int iteration)//传统最速梯度下降法 使用梯度下降法求最小值
+{
+	complex_matrix y_1 = (!H_hat) * y_hat;
+	complex_matrix A = ((!H_hat) * H_hat + complex_matrix::eyes(H_hat.cols_num) * s);
+	double eps = 1e-5;
+	complex_matrix  s0 = complex_matrix(H_hat.cols_num, 1);//generate_signal(H_hat.cols_num);//产生随机的s0
+	for (size_t i = 0; i < iteration; i++)
+	{
+		s0 = s0 + y_1*(((!y_1)*y_1).p[0][0] / ((!(A*y_1))*y_1).p[0][0]);
+		y_1 = y_1 - A * y_1 * (((!y_1) * y_1).p[0][0] / (((!(A * y_1))) * y_1).p[0][0]);
+	}
+	return s0;
+}
+\end{lstlisting}
+\subsection{Barzilai-Borwein算法}
+\par 与SD法不同的是BB算法为拟牛顿法，其在迭代过程中满足：
+\[\mathbf{A}_{k} \mathbf{x}^{(k)}=\mathbf{z}^{(k)}\]
+其中$ \mathbf{x}^{(k)}=\hat{\mathbf{s}}^{(k+1)}-\hat{\mathbf{s}}^{(k)} \text { 且} \mathbf{z}^{(k)}=\nabla f\left(\hat{\mathbf{s}}^{(k+1)}\right)-\nabla f\left(\hat{\mathbf{s}}^{(k)}\right) $。Barzilai-Borwein算法的基本迭代格式如下：
+\[\begin{aligned}
+\hat{\mathbf{s}}^{(k+1)} &=\hat{\mathbf{s}}^{(k)}-\frac{1}{\alpha_{k-1}} \nabla f\left(\hat{\mathbf{s}}^{(k)}\right) \\
+&=\hat{\mathbf{s}}^{(k)}-\frac{\left(\mathbf{x}^{(k-1)} \cdot \mathbf{x}^{(k-1)}\right)}{\left(\mathbf{A} \mathbf{x}^{(k-1)} \cdot \mathbf{x}^{(k-1)}\right)} \nabla f\left(\hat{\mathbf{s}}^{(k)}\right)
+\end{aligned}\]
+初始时取$ \mathbf{B}_0=\mathbf{0}\text{而} \mathbf{B}_1 $任意。对于此问题中的函数，复数矩阵的梯度向量可表示为:
+
+\[\nabla f\left(\hat{\mathbf{s}}^{(k)}\right)=\mathbf{As^（k）}-\tilde{\mathbf{y}}\]
+有了迭代格式编写程序如下：
+\begin{lstlisting}
+double eps = 1e-5;
+	complex_matrix y_1 = (!H_hat) * y_hat;
+	complex_matrix s0(H_hat.cols_num, 1);
+	complex_matrix s1 =complex_matrix(s0.rows_num,1);
+	for (int i = 0; i < s0.rows_num;i++)
+	{
+		s1.p[i][0] = Complex(1, 0);
+	}
+	complex_matrix x0 = s1 - s0;
+	complex_matrix A = (!H_hat) * H_hat + complex_matrix::eyes(H_hat.cols_num) * s;
+
+	complex_matrix temps=s1;
+	for (size_t i = 0; i < iteration; i++)
+	{
+		if (x0.norm2(0) <= eps&&i!=0)
+		{
+			break;
+		}
+		else
+		{
+			temps = s1;
+			s1 = s1 -gradient_complex(A,s1,y_1)*(x0.cdot() / (A*x0).cdot(x0));//已经为负梯度
+			x0 = s1 - temps;
+		}
+	}
+	return s1;
+\end{lstlisting}
+\quad 其中求梯度函数：
+\begin{lstlisting}
+complex_matrix gradient_complex(complex_matrix A, complex_matrix s, complex_matrix b)
+{
+	complex_matrix result;
+	result = A * s - b;
+	return result;
+}
+\end{lstlisting}
+\subsection{算法比较}
+\par 测试在不同迭代次数下各个算法的表现情况。将得到的结果绘制曲线：
+\begin{figure}[htpb]
+\centering
+\includegraphics[scale=0.55]{fig3.eps}
+\caption{B=128,U=32时BB与SD误码率}
+\end{figure}
+\paragraph{结果分析} 从结果可以看出SD和BB算法的误码率接近而都随着迭代次数增大而减小。同时Cholesky分解算法的误码率比两者更低且在信噪比SNR较高时 更为明显。
+\section{文献三}
+\par 在前面的文献讨论中我们知道信号还原问题可以化为方程\ref{fangcheng}的求解问题，在此基础上共轭梯度法也可用于求解此方程。
+\subsection{共轭梯度CG法}
+\par 共轭梯度法的基本迭代格式为：
+\[\begin{aligned}
+\hat{\mathbf{s}}^{(i)} &=\hat{\mathbf{s}}^{(i-1)}+\frac{\left(\tilde{\mathbf{y}}^{(i-1)} \cdot \tilde{\mathbf{y}}^{(i-1)}\right)}{\left(\mathbf{A} \tilde{\mathbf{p}}^{(i-1)} \cdot \tilde{\mathbf{p}}^{(i-1)}\right)} \tilde{\mathbf{p}}^{(i-1)} \\
+\tilde{\mathbf{y}}^{(i)} &=\tilde{\mathbf{y}}^{(i-1)}-\frac{\left(\tilde{\mathbf{y}}^{(i-1)} \cdot \tilde{\mathbf{y}}^{(i-1)}\right)}{\left(\mathbf{A} \tilde{\mathbf{p}}^{(i-1)} \cdot \tilde{\mathbf{p}}^{(i-1)}\right)} \mathbf{A} \tilde{\mathbf{p}}^{(i-1)} \\
+\tilde{\mathbf{p}}^{(i)} &=\tilde{\mathbf{y}}^{(i)}+\frac{\left(\tilde{\mathbf{y}}^{(i)} \cdot \tilde{\mathbf{y}}^{(i)}\right)}{\left(\tilde{\mathbf{y}}^{(i-1)} \cdot \tilde{\mathbf{y}}^{(i-1)}\right)} \tilde{\mathbf{p}}^{(i-1)}
+\end{aligned}\]
+初始化时可取\[\hat{\mathbf{s}}^{(0)}=0, \tilde{\mathbf{y}}^{(0)}=\tilde{\mathbf{y}}, \tilde{\mathbf{p}}^{(0)}=\tilde{\mathbf{y}}^{(0)}\]
+在上述基础上编写程序如下：
+\begin{lstlisting}
+complex_matrix CG(complex_matrix H_hat, complex_matrix y_hat, double s,int iteration)
+{
+	double eps = 1e-5;
+	complex_matrix y_1 = (!H_hat) * y_hat;
+	complex_matrix A = ((!H_hat) * H_hat + complex_matrix::eyes(H_hat.cols_num) * s);
+	complex_matrix s0(H_hat.cols_num, 1);
+	complex_matrix y0 = y_1;
+	complex_matrix p0 = y0;
+	complex_matrix tempy = y0;;
+	for (size_t i = 0; i < iteration; i++)
+	{
+		if((tempy-y0).norm2(0)<=eps&&i!=0)
+		{
+			break;
+		}
+		else
+		{
+			tempy = y0;
+			s0 = s0 + p0 * (((!y0) * y0).p[0][0] / ((!(A * p0)) * p0).p[0][0]);
+			y0 = y0 - A * p0 * (((!y0) * y0).p[0][0] / ((!(A * p0)) * p0).p[0][0]);
+			p0 = y0 + p0 * ((((!y0) * y0).p[0][0]) / ((!tempy) * tempy).p[0][0]);
+		}
+	}
+	return s0;
+}
+\end{lstlisting}
+\subsection{SPCG法}
+\par 为了提升在负载因子$ \rho $较大的时候CG算法的表现情况以及减少算法对内存的需要。SPCG算法被提出，SPCG算法过程如下:
+\[\begin{array}{l}
+\hline \text { Algorithm 1 Proposed SPCG Algorithm } \\
+\hline \text { Input: } \\
+\quad \text { Matrix } \mathbf{A}, \text { vector } \tilde{\mathbf{y}} \\
+\text { 1: Compute B by Eq. } . \\
+\text { 2: } \hat{\mathbf{s}}^{(0)}=0, \tilde{\mathbf{y}}^{(0)}=\mathbf{B} \tilde{\mathbf{y}}, \tilde{\mathbf{p}}^{(0)}=\tilde{\mathbf{y}}^{(0)} \\
+\text { 3: for } i=1, \ldots, k \quad \mathbf{d o} \\
+\text { 4: } \quad \hat{\mathbf{s}}^{(i)}=\hat{\mathbf{s}}^{(i-1)}+\frac{\left(\tilde{\mathbf{y}}^{(i-1)} \cdot \tilde{\mathbf{y}}^{(i-1)}\right)}{\left(\mathbf{B A B} \tilde{\mathbf{p}}^{(i-1)} \cdot \tilde{\mathbf{p}}^{(i-1)}\right)} \mathbf{B} \tilde{\mathbf{p}}^{(i-1)} \\
+\text { 5: } \quad \tilde{\mathbf{y}}^{(i)}=\tilde{\mathbf{y}}^{(i-1)}-\frac{\left(\tilde{\mathbf{y}}^{(i-1)} \cdot \tilde{\mathbf{y}}^{(i-1)}\right)}{\left(\mathbf{B A B} \tilde{\mathbf{p}}^{(i-1)} \cdot \tilde{\mathbf{p}}^{(i-1)}\right)} \mathbf{B A B} \tilde{\mathbf{p}}^{(i-1)} \\
+\text { 6: } \quad \tilde{\mathbf{p}}^{(i)}=\tilde{\mathbf{y}}^{(i)}+\frac{\left(\tilde{\mathbf{y}}^{(i)} \cdot \tilde{\mathbf{y}}^{(i)}\right)}{\left(\tilde{\mathbf{y}}^{(i-1)} \cdot \tilde{\mathbf{y}}^{(i-1)}\right)} \tilde{\mathbf{p}}^{(i-1)} \\
+\text { 7: } \mathbf{e n d}\quad \mathbf{f o r} \\
+\text { Output: } \\
+\quad \hat{\mathbf{s}}=\hat{\mathbf{s}}^{(k)}\\
+\hline
+\end{array}\]
+其中
+\[\mathbf{B}_{(i, i)}=\frac{1}{\sqrt{\mathbf{A}_{(i, i)}}}\]
+在算法基础上编写程序如下：
+\begin{lstlisting}
+complex_matrix SPCG(complex_matrix H_hat, complex_matrix y_hat, double s,int iteration)
+{
+	double eps = 1e-5;
+	complex_matrix y_1 = (!H_hat) * y_hat;
+	complex_matrix A = ((!H_hat) * H_hat + complex_matrix::eyes(H_hat.cols_num) * s);
+	complex_matrix s0(H_hat.cols_num, 1);
+	complex_matrix B(A.rows_num, A.cols_num);
+	for (size_t i = 0; i < B.rows_num; i++)
+	{
+		B.p[i][i] =Complex( 1.0 / sqrt(A.p[i][i].real),0);//HT*H虚部为零0
+	}
+
+	complex_matrix y0 = B*y_1;
+	complex_matrix p0 = y0;
+	complex_matrix tempy = y0;
+	for (size_t i = 0; i < iteration; i++)
+	{
+		if ((tempy - y0).norm2(0) <= eps && i != 0)
+		{
+			break;
+		}
+		else{
+		tempy = y0;
+		s0 = s0 + B * p0 * (y0.cdot() / (B * A * B * p0).cdot(p0));
+		y0 = y0 - B * A * B * p0 * (y0.cdot() / (B * A * B * p0).cdot(p0));
+		p0 = y0 + p0 * (y0.cdot() / tempy.cdot()); 
+		}	
+	}
+	return s0;
+}
+\end{lstlisting}
+\subsection{算法比较}
+\par 在不同迭代次数下比较CG算法和SPCG算法的误码率并绘制对应曲线，得到的图像如下:
+\begin{figure}[htpb]
+\centering
+\includegraphics[scale=0.55]{fig4.eps}
+\caption{当M=128，N=16时不同算法不同迭代次数下CG和SPCG算法的误码率}
+\end{figure}
+\paragraph{结果分析} 从图中可以看出在不同迭代次数下CG和SPCG算法误码率相近，说明两个算法准确度相接近。而随着迭代次数增加，两个算法的误码率都下降，符合趋势。除此之外Cholesky分解的误码率在此条件下和三次迭代下的CG和SPCG算法接近，
+\par 更改发射天线数目至N=32进行测试，结果如下：
+\begin{figure}[htpb]
+\centering
+\includegraphics[scale=0.55]{fig5.eps}
+\caption{当M=128，N=32时不同算法不同迭代次数下CG和SPCG算法的误码率}
+\end{figure}
+\paragraph{结果分析} 从图中可以看出在N=32时结果和N=16时相近，不同迭代次数下CG和SPCG算法误码率相近，两个算法准确度相接近。而随着迭代次数增加，两个算法的误码率都下降，符合趋势。除此之外可以看出Cholesky分解的误码率低于另外两个算法。
+\section{文献四}
+\par 对于方程线程方程组方程\[\mathbf{Ax=b}\]文献四中给出了多种迭代算法，本作业取了如下的几种方法进行测试。
+\subsection{雅可比方法}
+\par 在矩阵分裂$\boldsymbol{A}=\boldsymbol{M}-\boldsymbol{N}  $中取  $\boldsymbol{M}$为对角阵, 且其元素是$  \boldsymbol{A}  $的对角元是一种最简单的方法. 设D是与A的对角元相同的对角阵,L和U分别是A的严格下三角和严格上三角部分,则
+\[\boldsymbol{M}=\boldsymbol{D}  \quad \boldsymbol{N}=-(\boldsymbol{L}+\boldsymbol{U})\]
+在此条件下雅可比迭代的格式为：
+\[\boldsymbol{x}^{(k+1)}=\boldsymbol{D}^{1}\left(\boldsymbol{b}-(\boldsymbol{L}+\boldsymbol{U}) \boldsymbol{x}^{(k)}\right)\]
+在此基础上编写程序如下所示：
+\begin{lstlisting}
+Matrix Jacobi(complex_matrix H_hat, complex_matrix y_hat, double s=1.0, int iteration=1)
+{
+	double eps = 1e-6;
+	int N = 2 * y_hat.rows_num;
+	int K = 2 * H_hat.cols_num;
+	//complex_matrix temp_y(2 * y.rows_num, 1);
+	Matrix R_y = y_hat.realmatrix();//实部矩阵
+	Matrix I_y = y_hat.imagmatrix();//虚部矩阵
+
+	Matrix R_H = H_hat.realmatrix();
+	Matrix I_H = H_hat.imagmatrix();
+
+	Matrix y = R_y.combine_rows(R_y, I_y);
+
+	Matrix H = R_H.combine_rows(R_H, I_H);
+	Matrix temp_imagpart = Matrix(H_hat.rows_num, H_hat.cols_num) - I_H;//负的H的虚部矩阵
+	Matrix temp = temp_imagpart.combine_rows(temp_imagpart, R_H);
+	H = H.combine_cols(H, temp);//最终得到H
+	Matrix A = Matrix::T(H) * H + Matrix::eye(K) * s;
+	Matrix b = Matrix::T(H) * y;
+
+
+	Matrix D(A.rows_num, A.cols_num);
+	Matrix N_1(A.rows_num, A.cols_num); 
+	for (size_t i = 0; i <A.rows_num; i++)
+	{
+		D.p[i][i] = A.p[i][i];
+	}
+	N_1 = D - A;
+	Matrix s0 = generate_signal(K).realmatrix();//产生一个随机的s0
+	Matrix temps = s0;
+	for (size_t i = 0; i < 100; i++)
+	{
+		if ((temps - s0).norm2(0) <= eps && i != 0)
+		{
+			break;
+		}
+		else
+		{
+			temps = s0;
+			s0 = Matrix::inv(D) * (b + N_1 * s0);
+		}
+	}
+	return s0;
+}
+\end{lstlisting}
+\par 程序中先将复数矩阵按照文献1中的方式转化为实数矩阵问题，随后通过雅可比迭代得到最终的结果，在迭代过程中通过迭代前后s向量相差得到的向量的范数大小来终止迭代。
+\subsection{高斯赛德尔方法}
+\par 雅可比方法收敛速度缓慢，原因在于是它在迭代过程中并没有利用最新的信息，新的分量值只有在整个扫描过程全部完成才能被利用.而高斯-塞德尔方法弥补了这一缺陷，一旦某个分量的新值计算出来马上将它利用。高斯赛德尔方法的迭代格式为：
+\[\begin{aligned}
+\boldsymbol{x}^{(k+1)} &=\boldsymbol{D}^{-1}\left(\boldsymbol{b}-\boldsymbol{L} \boldsymbol{x}^{(k+1)}-\boldsymbol{U} \boldsymbol{x}^{(k)}\right) \\
+&=(\boldsymbol{D}+\boldsymbol{L})^{1}\left(\boldsymbol{b}-\boldsymbol{U} \boldsymbol{x}^{(k)}\right)
+\end{aligned}\]
+对应的迭代格式为：
+\[\boldsymbol{M}=\boldsymbol{D}+\boldsymbol{L}, \quad \boldsymbol{N}=-\boldsymbol{U}\]
+对于高斯赛德尔方法编写程序如下：
+\begin{lstlisting}
+Matrix Gauss(complex_matrix H_hat, complex_matrix y_hat, double s = 1.0, int iteration = 1)
+{
+	double eps = 1e-6;
+	int N = 2 * y_hat.rows_num;
+	int K = 2 * H_hat.cols_num;
+	//complex_matrix temp_y(2 * y.rows_num, 1);
+	Matrix R_y = y_hat.realmatrix();//实部矩阵
+	Matrix I_y = y_hat.imagmatrix();//虚部矩阵
+
+	Matrix R_H = H_hat.realmatrix();
+	Matrix I_H = H_hat.imagmatrix();
+
+	Matrix y = R_y.combine_rows(R_y, I_y);
+
+	Matrix H = R_H.combine_rows(R_H, I_H);
+	Matrix temp_imagpart = Matrix(H_hat.rows_num, H_hat.cols_num) - I_H;//负的H的虚部矩阵
+	Matrix temp = temp_imagpart.combine_rows(temp_imagpart, R_H);
+	H = H.combine_cols(H, temp);//最终得到H
+	Matrix A = Matrix::T(H) * H + Matrix::eye(K) * s;
+	Matrix b = Matrix::T(H) * y;
+
+	Matrix D(A.rows_num, A.cols_num);
+	Matrix L(A.rows_num, A.cols_num);
+	Matrix U(A.rows_num, A.cols_num);
+	Matrix s0 = generate_signal(K).realmatrix();//产生一个随机的s0
+	Matrix temps = s0;
+	for (size_t i = 0; i < A.rows_num; i++)
+	{
+		D.p[i][i] = A.p[i][i];
+	}
+	for (size_t i = 0; i < A.rows_num; i++)
+	{
+		for (size_t j = 0; j < A.cols_num; j++)
+		{
+			if (i > j)
+			{
+				L.p[i][j] = A.p[i][j];
+			}
+			else if (i < j)
+			{
+				U.p[i][j] = A.p[i][j];
+			}
+		}
+	}
+	for (size_t i = 0; i < 100; i++)
+	{
+		if ((temps - s0).norm2(0) <= eps && i != 0)
+		{
+			break;
+		}
+		else
+		{
+			temps = s0;
+			s0 = Matrix::inv(D + L) * (b - U * s0);
+		}
+	}
+	return s0;
+
+}
+
+\end{lstlisting}
+程序与雅可比方法基本一致而只在迭代格式不同。高斯赛德尔方法收敛速度更快且不需要重复储存解响亮的值。
+\subsection{逐次超松弛迭代}
+逐次超松弛(SOR)技术可以加快高斯-塞德尔方法的收敛速度﹐这种方法以下一步高斯-塞德尔迭代的步长作为搜索方向,加上一个固定的用$ \omega $表示的搜索参数.具体做法是从初始解向量出发﹐首先用高斯-塞德尔方法计算下一步的迭代值$ x_Gs $﹐然后取下一次迭代值为:
+\[\boldsymbol{x}^{(k+1)}=\boldsymbol{x}^{(k)}+\omega\left(\boldsymbol{x}_{\mathrm{i} \mathrm{s}}^{(k+1)}-\boldsymbol{x}^{(k)}\right) .\]
+$ \omega $相当于一个固定的起加速收敛作用的松弛参数.$ \omega $>1为超松弛,$ \omega $<1为低松弛($ \omega $=1就是高斯-塞德尔方法),通常总是取0<w<2(否则方法发散)。		
+\par 在矩阵形式下超松弛迭代可以写为
+$$
+\begin{aligned}
+\boldsymbol{x}^{(k+1)} &=\boldsymbol{x}^{(k)}+\omega\left(\boldsymbol{D}^{-1}\left(\boldsymbol{b}-\boldsymbol{L} \boldsymbol{x}^{(k+1)}-\boldsymbol{U} \boldsymbol{x}^{(k)}\right)-\boldsymbol{x}^{(k)}\right) \\
+&=(\boldsymbol{D}+\omega \boldsymbol{L})^{-1}((1-\omega) \boldsymbol{D}-\omega \boldsymbol{U}) \boldsymbol{x}^{(k)}\\
+&+\omega(\boldsymbol{D}+\omega \boldsymbol{L})^{-1} \boldsymbol{b},
+\end{aligned}
+$$
+相应的分裂为
+$$
+\boldsymbol{M}=\frac{1}{\omega} \boldsymbol{D}+\boldsymbol{L}, \quad \boldsymbol{N}=\left(\frac{1}{\omega}-1\right) \boldsymbol{D}-\boldsymbol{U} .
+$$
+对应超松弛迭代，只需在上述程序中迭代格式改为：
+\begin{lstlisting}
+s0 = Matrix::inv(D + L * omega) * (D * (1 - omega) - U * omega) * s0 + Matrix::inv(D + L * omega) * b * omega;
+\end{lstlisting}即可。
+\subsection{算法测试}
+\subsubsection{SOR}
+\paragraph{测试$ \omega $对误码率影响}
+对于SOR方法，其松弛参数会影响算法的收敛速度以及误码率。我们可以在SNR=10dB的条件下测试不同$ \omega $对算法误码率的影响，其结果如下所示结果如下：
+\begin{figure}[htpb]
+\centering
+\includegraphics[scale=0.55]{SOR.eps}
+\caption{当M=128，N=16，SNR=10dB时$ \omega $影响}
+\end{figure}
+图中的n为迭代次数，系统大小为16*128.由于每次测试都重新生成了信道矩阵H，因此最佳松弛参数有所不同。但是都能从图中看到SOR方法存在一个最佳松弛参数可以使得误码最低同时收敛速度快。
+\subsubsection{高斯赛德尔及雅可比方法}
+\quad 对于高斯赛德尔方法和雅可比方法我们可以测试其在不同误码率以及不同迭代次数下的误码率情形。其结果如下
+\begin{figure*}[htbp]
+
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\includegraphics[scale=0.6]{gauss.eps}
+\caption{不同SNR及迭代次数下高斯法误码率表现}
+\end{minipage}
+\centering
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\includegraphics[scale=0.6]{JA.eps}
+\caption{不同SNR及迭代次数下雅可比法误码率表现}
+\end{minipage}
+\end{figure*}
+从图中可以看出两种方法的表现十分类似，两者的误码率随着迭代次数和信噪比增加了减小。
+\end{document}
